@@ -1,0 +1,8 @@
+Flask
+Flask-RESTful
+Flask-JWT
+uwsgi
+pykalman
+numpy
+requests
+
