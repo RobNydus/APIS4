@@ -5,6 +5,7 @@ import numpy as np
 import requests
 
 app=Flask(__name__)
+app.config['DEBUG']=True
 api=Api(app)
 
 def FilteringStage(data):
@@ -67,6 +68,7 @@ class KFilter(Resource):
 
 api.add_resource(KFilter,"/data")
 
-app.run(port=5000,debug=True)
+if __name__=='__main__':
+	app.run(port=5000)
 		
 
