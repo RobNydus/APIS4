@@ -5,4 +5,4 @@ uwsgi
 pykalman
 numpy
 requests
-
+scipy
