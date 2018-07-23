@@ -9,7 +9,7 @@ app.config['DEBUG']=True
 api=Api(app)
 
 def FilteringStage(data):
-	initial_state_mean=filter(lambda x: (x > 1) and (x < 100),data)[0]
+	initial_state_mean=filter(lambda x: (x > 1) and (x <= 60),data)[0]
 	transition_matrix=[1]
 	observation_matrix=[1]	
 	sensor_mask=np.ma.asarray(data)
