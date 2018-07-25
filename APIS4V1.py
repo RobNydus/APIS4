@@ -3,6 +3,7 @@ from flask_restful import Resource, Api, reqparse
 from pykalman import KalmanFilter
 import numpy as np
 import requests
+import datetime
 
 app=Flask(__name__)
 api=Api(app)
@@ -12,13 +13,13 @@ def FilteringStage(data,clase=1):
 		initial_state_mean=filter(lambda x: (x > 1) and (x < 60),data)[0]
 		sensor_mask=np.ma.asarray(data)
 		for i in range(0,len(data)):
-			if data[i]<=1 or data[i]>=60:
+			if data[i]<=1 or data[i]>=70:
 				sensor_mask[i]=np.ma.masked
 	elif clase==2:
-		initial_state_mean=filter(lambda x: (x > 1) and (x < 60),data)[0]
+		initial_state_mean=filter(lambda x: (x > 0) and (x < 100),data)[0]
 		sensor_mask=np.ma.asarray(data)
 		for i in range(0,len(data)):
-			if data[i]<=1 or data[i]>=60:
+			if data[i]<=0 or data[i]>=100:
 				sensor_mask[i]=np.ma.masked
 
 	transition_matrix=[1]
@@ -26,7 +27,7 @@ def FilteringStage(data,clase=1):
 	
 	
 	kf=KalmanFilter(transition_matrices = transition_matrix, observation_matrices = observation_matrix, initial_state_mean = initial_state_mean,
-				transition_covariance=0.05,observation_covariance=0.35)
+				transition_covariance=0.05,observation_covariance=0.15)
 	
 	state_means, state_covs = kf.filter(sensor_mask)		#Ejecuta el filtro de kalman
 	return state_means[:,0]
@@ -54,6 +55,17 @@ class KFilter(Resource):
 		response=requests.get(self.less_web+params, headers={'Authorization': 'token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MjY1NjIxNTQsInJvbGUiOiJ1c2VyIiwiZXhwIjoxNTU4MDk4MTU0LCJ1c2VybmFtZSI6Imphbm5pcm9jdkBnbWFpbC5jb20ifQ.3792hPpxX0KHW_Q9ajICvWd3jrLE785lKWiD-Mt1kKs'})
 		raw_data=response.json()
 		
+		from_datetime=datetime.datetime.strptime(from_date,"%Y-%m-%dT%H:%M:%S.%fZ")
+		last_date=datetime.datetime.fromtimestamp(int(raw_data[-1]['message_timestamp'])/1000)
+
+		for i in range(8):
+			if ((last_date-from_datetime)>datetime.timedelta(hours=24)):
+				new_todate=last_date.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+				params='?from_date='+from_date+'&to_date='+new_todate+'&less_id='+less_id+'&limit='+limit
+				response_temp=requests.get('https://api.lessindustries.com/v1/messages/'+params, headers={'Authorization': 'token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MjY1NjIxNTQsInJvbGUiOiJ1c2VyIiwiZXhwIjoxNTU4MDk4MTU0LCJ1c2VybmFtZSI6Imphbm5pcm9jdkBnbWFpbC5jb20ifQ.3792hPpxX0KHW_Q9ajICvWd3jrLE785lKWiD-Mt1kKs'})
+				raw_data=raw_data+response_temp.json()
+				last_date=datetime.datetime.fromtimestamp(int(raw_data[-1]['message_timestamp'])/1000)
+
 		measurements=[]
 
 		if less_id in self.loggers_dendrometer:
@@ -75,11 +87,16 @@ class KFilter(Resource):
 			 	raw_data[pointer]['soil_vwc_3']['derived']=soft_soil3[pointer]
 
 		elif less_id in self.loggers_mstd8:
+			print raw_data[0].keys()
 			for x in raw_data:
-				measurements.append([x['soil_vwc_1']['derived'],x['soil_vwc_2']['derived'],x['soil_vwc_3']['derived'],x['soil_vwc_4']['derived'],
-					x['soil_vwc_5']['derived'],x['soil_vwc_6']['derived'],x['soil_vwc_7']['derived'],x['soil_vwc_8']['derived']])
+				#print x
+				try:
+					measurements.append([x['soil_vwc_1']['derived'],x['soil_vwc_2']['derived'],x['soil_vwc_3']['derived'],x['soil_vwc_4']['derived'],
+						x['soil_vwc_5']['derived'],x['soil_vwc_6']['derived'],x['soil_vwc_7']['derived'],x['soil_vwc_8']['derived']])
+				except:
+					measurements[-1]=[0,0,0,0,0,0,0,0]
+					print "Something went wrong"
 
-			print len(measurements[0])
 			soil1=[float(x[0]) for x in measurements]
 			soil2=[float(x[1]) for x in measurements]
 			soil3=[float(x[2]) for x in measurements]
@@ -99,15 +116,17 @@ class KFilter(Resource):
 			soft_soil8=FilteringStage(soil8,2)
 
 			for pointer in range(len(raw_data)):
-				raw_data[pointer]['soil_vwc_1']['derived']=soft_soil1[pointer]
-			 	raw_data[pointer]['soil_vwc_2']['derived']=soft_soil2[pointer]
-			 	raw_data[pointer]['soil_vwc_3']['derived']=soft_soil3[pointer]
-			 	raw_data[pointer]['soil_vwc_4']['derived']=soft_soil4[pointer]
-			 	raw_data[pointer]['soil_vwc_5']['derived']=soft_soil5[pointer]
-			 	raw_data[pointer]['soil_vwc_6']['derived']=soft_soil6[pointer]	
-			 	raw_data[pointer]['soil_vwc_7']['derived']=soft_soil7[pointer]
-			 	raw_data[pointer]['soil_vwc_8']['derived']=soft_soil8[pointer]		
-		
+				try:
+					raw_data[pointer]['soil_vwc_1']['derived']=soft_soil1[pointer]
+				 	raw_data[pointer]['soil_vwc_2']['derived']=soft_soil2[pointer]
+				 	raw_data[pointer]['soil_vwc_3']['derived']=soft_soil3[pointer]
+				 	raw_data[pointer]['soil_vwc_4']['derived']=soft_soil4[pointer]
+				 	raw_data[pointer]['soil_vwc_5']['derived']=soft_soil5[pointer]
+				 	raw_data[pointer]['soil_vwc_6']['derived']=soft_soil6[pointer]	
+				 	raw_data[pointer]['soil_vwc_7']['derived']=soft_soil7[pointer]
+				 	raw_data[pointer]['soil_vwc_8']['derived']=soft_soil8[pointer]		
+				except:
+					raw_data[pointer]=raw_data[pointer-1]
 		return raw_data
 
 api.add_resource(KFilter,"/data")
