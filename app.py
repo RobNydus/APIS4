@@ -50,12 +50,20 @@ class KFilter(Resource):
 		from_date=request.args.get('from_date')
 		to_date=request.args.get('to_date')
 		limit=request.args.get('limit')
+
 		params='?from_date='+from_date+'&to_date='+to_date+'&less_id='+less_id+'&limit='+limit
-		response=requests.get(self.less_web+params, headers={'Authorization': 'token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MjY1NjIxNTQsInJvbGUiOiJ1c2VyIiwiZXhwIjoxNTU4MDk4MTU0LCJ1c2VybmFtZSI6Imphbm5pcm9jdkBnbWFpbC5jb20ifQ.3792hPpxX0KHW_Q9ajICvWd3jrLE785lKWiD-Mt1kKs'})
-		raw_data=response.json()
-		
 		from_datetime=datetime.datetime.strptime(from_date,"%Y-%m-%dT%H:%M:%S.%fZ")
-		last_date=datetime.datetime.fromtimestamp(int(raw_data[-1]['message_timestamp'])/1000)
+		to_datetime=datetime.datetime.strptime(to_date,"%Y-%m-%dT%H:%M:%S.%fZ")
+				
+		if to_datetime<=from_datetime:
+			return []
+		else:
+			try:
+				response=requests.get(self.less_web+params, headers={'Authorization': 'token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MjY1NjIxNTQsInJvbGUiOiJ1c2VyIiwiZXhwIjoxNTU4MDk4MTU0LCJ1c2VybmFtZSI6Imphbm5pcm9jdkBnbWFpbC5jb20ifQ.3792hPpxX0KHW_Q9ajICvWd3jrLE785lKWiD-Mt1kKs'})
+				raw_data=response.json()
+				last_date=datetime.datetime.fromtimestamp(int(raw_data[-1]['message_timestamp'])/1000)
+			except:
+				return []
 
 		for i in range(5):
 			if ((last_date-from_datetime)>datetime.timedelta(hours=24)):
