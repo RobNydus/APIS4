@@ -8,7 +8,7 @@ import datetime
 from flask_cors import CORS
 
 app=Flask(__name__)
-CORS(app, resources={r"/": {"origins":"*"}, r"/": {"supports_credentials":True}})
+CORS(app, resources={r"/data": {"origins":"*"}, r"/": {"supports_credentials":True}})
 app.config['DEBUG']=True
 api=Api(app)
 
