@@ -4,8 +4,11 @@ from pykalman import KalmanFilter
 import numpy as np
 import requests
 import datetime
+#from flask.ext.cors import CORS
+from flask_cors import CORS
 
 app=Flask(__name__)
+CORS(app, resources={r"/": {"origins":"*"}, r"/": {"supports_credentials":True}})
 app.config['DEBUG']=True
 api=Api(app)
 

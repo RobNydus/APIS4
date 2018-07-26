@@ -6,3 +6,4 @@ pykalman
 numpy
 requests
 scipy
+flask-cors
