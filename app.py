@@ -14,7 +14,7 @@ api=Api(app)
 
 def FilteringStage(data,clase=1):
 	if clase==1:
-		initial_state_mean=filter(lambda x: (x > 1) and (x < 60),data)[0]
+		initial_state_mean=filter(lambda x: (x > 1) and (x <= 70),data)[0]
 		sensor_mask=np.ma.asarray(data)
 		for i in range(0,len(data)):
 			if data[i]<=1 or data[i]>=70:
