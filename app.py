@@ -14,13 +14,19 @@ api=Api(app)
 
 def FilteringStage(data,clase=1):
 	if clase==1:
-		initial_state_mean=filter(lambda x: (x > 1) and (x <= 70),data)[0]
+		try:
+			initial_state_mean=filter(lambda x: (x > 0) and (x <= 60),data)[0]
+		except:
+			initial_state_mean=0
 		sensor_mask=np.ma.asarray(data)
 		for i in range(0,len(data)):
-			if data[i]<=1 or data[i]>=70:
+			if data[i]<=0 or data[i]>=70:
 				sensor_mask[i]=np.ma.masked
 	elif clase==2:
-		initial_state_mean=filter(lambda x: (x > 0) and (x < 100),data)[0]
+		try:
+			initial_state_mean=filter(lambda x: (x > 0) and (x < 100),data)[0]
+		except:
+			initial_state_mean=0
 		sensor_mask=np.ma.asarray(data)
 		for i in range(0,len(data)):
 			if data[i]<=0 or data[i]>=100:
@@ -81,30 +87,48 @@ class KFilter(Resource):
 
 		if less_id in self.loggers_dendrometer:
 			for x in raw_data:
-				measurements.append([x['soil_vwc_1']['derived'],x['soil_vwc_2']['derived'],x['soil_vwc_3']['derived']])			
+				measurements.append([x['soil_vwc_1']['derived'],x['soil_vwc_2']['derived'],x['soil_vwc_3']['derived'],x['soil_temperature_1']['derived'],x['soil_temperature_2']['derived'],x['soil_temperature_3']['derived'],x['soil_conductivity_2']['derived']])			
 
-			print len(measurements[0])
 			soil1=[float(x[0]) for x in measurements]
 			soil2=[float(x[1]) for x in measurements]
 			soil3=[float(x[2]) for x in measurements]
+			temp1=[float(x[3]) for x in measurements]
+			temp2=[float(x[4]) for x in measurements]
+			temp3=[float(x[5]) for x in measurements]
+			cond2=[float(x[6]) for x in measurements]
 
 			soft_soil1=FilteringStage(soil1)
 			soft_soil2=FilteringStage(soil2)
 			soft_soil3=FilteringStage(soil3)
+			soft_temp1=FilteringStage(temp1)
+			soft_temp2=FilteringStage(temp2)
+			soft_temp3=FilteringStage(temp3)
+			soft_cond2=FilteringStage(cond2)
 
 			for pointer in range(len(raw_data)):
 				raw_data[pointer]['soil_vwc_1']['derived']=soft_soil1[pointer]
 			 	raw_data[pointer]['soil_vwc_2']['derived']=soft_soil2[pointer]
 			 	raw_data[pointer]['soil_vwc_3']['derived']=soft_soil3[pointer]
+			 	raw_data[pointer]['soil_temperature_1']['derived']=soft_temp1[pointer]
+			 	raw_data[pointer]['soil_temperature_2']['derived']=soft_temp2[pointer]
+			 	raw_data[pointer]['soil_temperature_3']['derived']=soft_temp3[pointer]
+			 	raw_data[pointer]['soil_conductivity_2']['derived']=soft_cond2[pointer]
 
 		elif less_id in self.loggers_mstd8:
 			for x in raw_data:
 
 				try:
 					measurements.append([x['soil_vwc_1']['derived'],x['soil_vwc_2']['derived'],x['soil_vwc_3']['derived'],x['soil_vwc_4']['derived'],
-						x['soil_vwc_5']['derived'],x['soil_vwc_6']['derived'],x['soil_vwc_7']['derived'],x['soil_vwc_8']['derived']])
+						x['soil_vwc_5']['derived'],x['soil_vwc_6']['derived'],x['soil_vwc_7']['derived'],x['soil_vwc_8']['derived'],
+						x['soil_temperature_1']['derived'],x['soil_temperature_2']['derived'],x['soil_temperature_3']['derived'],
+						x['soil_temperature_4']['derived'],x['soil_temperature_5']['derived'],x['soil_temperature_6']['derived'],
+						x['soil_temperature_7']['derived'],x['soil_temperature_8']['derived'],
+						x['soil_conductivity_1']['derived'],x['soil_conductivity_2']['derived'],x['soil_conductivity_3']['derived'],
+						x['soil_conductivity_4']['derived'],x['soil_conductivity_5']['derived'],x['soil_conductivity_6']['derived'],
+						x['soil_conductivity_7']['derived'],x['soil_conductivity_8']['derived']])
 				except:
-					measurements[-1]=[0,0,0,0,0,0,0,0]
+					measurements[-1]=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+					print "Something went wrong"
 
 			soil1=[float(x[0]) for x in measurements]
 			soil2=[float(x[1]) for x in measurements]
@@ -115,6 +139,24 @@ class KFilter(Resource):
 			soil7=[float(x[6]) for x in measurements]
 			soil8=[float(x[7]) for x in measurements]
 
+			temp1=[float(x[8]) for x in measurements]
+			temp2=[float(x[9]) for x in measurements]
+			temp3=[float(x[10]) for x in measurements]
+			temp4=[float(x[11]) for x in measurements]
+			temp5=[float(x[12]) for x in measurements]
+			temp6=[float(x[13]) for x in measurements]
+			temp7=[float(x[14]) for x in measurements]
+			temp8=[float(x[15]) for x in measurements]
+
+			cond1=[float(x[16]) for x in measurements]
+			cond2=[float(x[17]) for x in measurements]
+			cond3=[float(x[18]) for x in measurements]
+			cond4=[float(x[19]) for x in measurements]
+			cond5=[float(x[20]) for x in measurements]
+			cond6=[float(x[21]) for x in measurements]
+			cond7=[float(x[22]) for x in measurements]
+			cond8=[float(x[23]) for x in measurements]
+
 			soft_soil1=FilteringStage(soil1,2)
 			soft_soil2=FilteringStage(soil2,2)
 			soft_soil3=FilteringStage(soil3,2)
@@ -123,6 +165,24 @@ class KFilter(Resource):
 			soft_soil6=FilteringStage(soil6,2)
 			soft_soil7=FilteringStage(soil7,2)
 			soft_soil8=FilteringStage(soil8,2)
+
+			soft_temp1=FilteringStage(temp1,2)
+			soft_temp2=FilteringStage(temp2,2)
+			soft_temp3=FilteringStage(temp3,2)
+			soft_temp4=FilteringStage(temp4,2)
+			soft_temp5=FilteringStage(temp5,2)
+			soft_temp6=FilteringStage(temp6,2)
+			soft_temp7=FilteringStage(temp7,2)
+			soft_temp8=FilteringStage(temp8,2)
+
+			soft_cond1=FilteringStage(cond1,2)
+			soft_cond2=FilteringStage(cond2,2)
+			soft_cond3=FilteringStage(cond3,2)
+			soft_cond4=FilteringStage(cond4,2)
+			soft_cond5=FilteringStage(cond5,2)
+			soft_cond6=FilteringStage(cond6,2)
+			soft_cond7=FilteringStage(cond7,2)
+			soft_cond8=FilteringStage(cond8,2)
 
 			for pointer in range(len(raw_data)):
 				try:
@@ -133,7 +193,23 @@ class KFilter(Resource):
 				 	raw_data[pointer]['soil_vwc_5']['derived']=soft_soil5[pointer]
 				 	raw_data[pointer]['soil_vwc_6']['derived']=soft_soil6[pointer]	
 				 	raw_data[pointer]['soil_vwc_7']['derived']=soft_soil7[pointer]
-				 	raw_data[pointer]['soil_vwc_8']['derived']=soft_soil8[pointer]		
+				 	raw_data[pointer]['soil_vwc_8']['derived']=soft_soil8[pointer]
+				 	raw_data[pointer]['soil_temperature_1']['derived']=soft_temp1[pointer]
+				 	raw_data[pointer]['soil_temperature_2']['derived']=soft_temp2[pointer]
+				 	raw_data[pointer]['soil_temperature_3']['derived']=soft_temp3[pointer]
+				 	raw_data[pointer]['soil_temperature_4']['derived']=soft_temp4[pointer]
+				 	raw_data[pointer]['soil_temperature_5']['derived']=soft_temp5[pointer]
+				 	raw_data[pointer]['soil_temperature_6']['derived']=soft_temp6[pointer]	
+				 	raw_data[pointer]['soil_temperature_7']['derived']=soft_temp7[pointer]
+				 	raw_data[pointer]['soil_temperature_8']['derived']=soft_temp8[pointer]	
+				 	raw_data[pointer]['soil_conductivity_1']['derived']=soft_cond1[pointer]
+				 	raw_data[pointer]['soil_conductivity_2']['derived']=soft_cond2[pointer]
+				 	raw_data[pointer]['soil_conductivity_3']['derived']=soft_cond3[pointer]
+				 	raw_data[pointer]['soil_conductivity_4']['derived']=soft_cond4[pointer]
+				 	raw_data[pointer]['soil_conductivity_5']['derived']=soft_cond5[pointer]
+				 	raw_data[pointer]['soil_conductivity_6']['derived']=soft_cond6[pointer]	
+				 	raw_data[pointer]['soil_conductivity_7']['derived']=soft_cond7[pointer]
+				 	raw_data[pointer]['soil_conductivity_8']['derived']=soft_cond8[pointer]
 				except:
 					raw_data[pointer]=raw_data[pointer-1]
 		return raw_data
