@@ -112,6 +112,8 @@ class KFilter(Resource):
 		global loggers_dendrometer
 		global loggers_dendrometer
 
+		less_orig="0"
+
 		less_id=request.args.get('less_id')
 		from_date=request.args.get('from_date')
 		to_date=request.args.get('to_date')

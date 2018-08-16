@@ -47,6 +47,7 @@ class LastMessage(Resource):
 		global less_web
 		global loggers_cosmo
 		less_id=request.args.get('less_id')
+		less_orig=0
 		
 
 		if less_id in self.loggers_cosmo:
@@ -107,6 +108,7 @@ class KFilter(Resource):
 		global loggers_dendrometer
 		global loggers_mstd8
 		global loggers_cosmo
+		less_orig=0
 
 		less_id=request.args.get('less_id')
 		from_date=request.args.get('from_date')
