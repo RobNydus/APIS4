@@ -51,11 +51,12 @@ class LastMessage(Resource):
 		global less_web
 		global loggers_cosmo
 		less_id=request.args.get('less_id')
-		
+		less_orig=0
 
 		if less_id in self.loggers_cosmo:
 			less_orig=less_id
 			less_id='865357020099758'
+
 		params='?less_id='+less_id
 		response=requests.get(self.less_web+params, headers={'Authorization': 'token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MjY1NjIxNTQsInJvbGUiOiJ1c2VyIiwiZXhwIjoxNTU4MDk4MTU0LCJ1c2VybmFtZSI6Imphbm5pcm9jdkBnbWFpbC5jb20ifQ.3792hPpxX0KHW_Q9ajICvWd3jrLE785lKWiD-Mt1kKs'})
 		raw_data=response.json()
