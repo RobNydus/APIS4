@@ -305,10 +305,11 @@ class KFilter(Resource):
 				"soil_conductivity_1":raw_data[pointer]['soil_conductivity_2'],
 				"soil_temperature_1":raw_data[pointer]['soil_temperature_2'],
 				"acceleration":raw_data[pointer]['acceleration'],			
-				"temperature":raw_data[pointer]['temperature'],
+				"temperature":{"unit":"C",'derived':float(raw_data[pointer]['temperature']['derived'])/1.5},
 				"humidity":raw_data[pointer]['humidity'],
 				'battery':raw_data[pointer]['battery'],
 				'sequence_number':raw_data[pointer]['sequence_number']
+
 				}
 				if less_orig=="865357030000001":
 					temp_json['balance_humedad']={'unit':'%','derived':float(raw_data[pointer]['soil_vwc_1']['derived'])*21.6-172.13}
