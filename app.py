@@ -81,9 +81,9 @@ class LastMessage(Resource):
 
 			if less_orig=="865357030000002":
 				temp_json['balance_humedad']={'unit':'%','derived':float(raw_data['soil_vwc_2']['derived'])*17.12-141.6}
-				temp_json['lai']={'unit':'%','derived':84+np.random.normal(0,2,1)[0]}
-				temp_json['diam']={'unit':'um','derived':9800+np.random.normal(0,50,1)[0]}
-				temp_json['brix']={'unit':'%','derived':14.7+np.random.normal(0,0.5,1)[0]}
+				temp_json['lai']={'unit':'%','derived':48+np.random.normal(0,2,1)[0]}
+				temp_json['diam']={'unit':'um','derived':9100+np.random.normal(0,50,1)[0]}
+				temp_json['brix']={'unit':'%','derived':12.1+np.random.normal(0,0.5,1)[0]}
 				temp_json['trunk']={'unit':'um','derived':34.5+np.random.normal(0,0.1,1)[0]}
 
 			if less_orig=="865357030000003":
@@ -278,8 +278,10 @@ class KFilter(Resource):
 
 		if less_orig in self.loggers_cosmo:
 			new_raw=[]
-			
-			lai=np.linspace(8,84,num=720)+np.random.normal(0,1.5,720)
+			x_lai=[0,179,359,549,719]
+			y_lai=[28, 32, 38.1, 40, 46]
+			f_lai=interp1d(x_lai,y_lai,kind='cubic')
+			lai=f_lai(range(720))+np.random.normal(0,0.5,720)
 			rlai=lai[::-1]
 			
 			fruit_diam=np.linspace(600,9800,num=720)+np.random.normal(0,50,720)+50*np.sin(np.linspace(-np.pi*8,np.pi*8,num=720))
@@ -288,7 +290,7 @@ class KFilter(Resource):
 			x_brix=[0,179,359,549,719]
 			y_brix=[11.4, 12.7, 13.1, 14.05, 14.7]
 			f_brix=interp1d(x_brix,y_brix,kind='cubic')
-			brix=f_brix(range(720))+np.random.normal(0,1,720)
+			brix=f_brix(range(720))+np.random.normal(0,0.5,720)
 			rbrix=brix[::-1]
 
 			x_trunk=[0,179,359,549,719]
