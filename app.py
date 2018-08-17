@@ -288,7 +288,7 @@ class KFilter(Resource):
 			x_brix=[0,179,359,549,719]
 			y_brix=[11.4, 12.7, 13.1, 14.05, 14.7]
 			f_brix=interp1d(x_brix,y_brix,kind='cubic')
-			brix=f_brix(range(720))
+			brix=f_brix(range(720))+np.random.normal(0,1,720)
 			rbrix=brix[::-1]
 
 			x_trunk=[0,179,359,549,719]
