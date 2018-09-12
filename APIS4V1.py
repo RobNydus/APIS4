@@ -17,7 +17,7 @@ def FilteringStage(data,clase=1):
 			initial_state_mean=0
 		sensor_mask=np.ma.asarray(data)
 		for i in range(0,len(data)):
-			if data[i]<=1 or data[i]>=70:
+			if data[i]<=0.1 or data[i]>=61:
 				sensor_mask[i]=np.ma.masked
 	elif clase==2:
 		try:
@@ -26,7 +26,7 @@ def FilteringStage(data,clase=1):
 			initial_state_mean=0
 		sensor_mask=np.ma.asarray(data)
 		for i in range(0,len(data)):
-			if data[i]<=0 or data[i]>=100:
+			if data[i]<=0.01 or data[i]>=61:
 				sensor_mask[i]=np.ma.masked
 
 	transition_matrix=[1]
